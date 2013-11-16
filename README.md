@@ -1,5 +1,4 @@
 # Class_RichEdit #
-----------
 
 
 ### AHK RichEdit Control ###

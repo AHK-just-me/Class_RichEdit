@@ -19,6 +19,6 @@ To add a RichEdit control to your GUI just create a *new* instance of the *RichE
 
 After the control is created, you may set general options as defaults for the control calling the appropriate methods. Now preparation is finished.
 
-Some of the RichEdit's functionality is working out of the box by shortcuts as shown on [MSDN](http://msdn.microsoft.com/en-us/library/bb787873(v=vs.85).aspx#rich_edit_shortcut_keys "http://msdn.microsoft.com/en-us/library/bb787873(v=vs.85).aspx#rich_edit_shortcut_keys"). But not all of them are working as documented. Aside from that, some of them cannot be used on non-english keyboards. So you'll quickly realise, that RichEdit's are easy to create, but hard to use.
+Some of the RichEdit's functionality is working out of the box by shortcuts as shown on [MSDN](http://msdn.microsoft.com/en-us/library/bb787873%28v=vs.85%29.aspx#rich_edit_shortcut_keys "http://msdn.microsoft.com/en-us/library/bb787873%28v=vs.85%29.aspx#rich_edit_shortcut_keys"). But not all of them are working as documented. Aside from that, some of them cannot be used on non-english keyboards. So you'll quickly realise, that RichEdit's are easy to create, but hard to use.
 
 ### And now the ball's in your court! ###

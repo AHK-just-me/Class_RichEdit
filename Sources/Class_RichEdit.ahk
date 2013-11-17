@@ -6,7 +6,7 @@
 ; OS Version:     Win 7 Pro x64
 ; Function:       The class provides some wrapper functions for rich edit controls (v4.1 Unicode).
 ; Change History:
-;    2013-09-21 v 0.1.00.00 (initial beta release)
+;    0.1.00.00    2013-11-17/just me - initial beta release
 ; Credits:
 ;    corrupt for cRichEdit:
 ;       http://www.autohotkey.com/board/topic/17869-crichedit-standard-richedit-control-for-autohotkey-scripts/

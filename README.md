@@ -4,11 +4,12 @@
 
 AHK class providing support for **RICHEDIT50W** controls in AHK GUIs.
 
-In the *Sources* folder you'll find three scripts:
+In the *Sources* folder you'll find three scripts and one RTF test file:
 
 1. **Class_RichEdit.ahk** - contains the class definition.
 2. **Class_RichEditDlgs.ahk** - contains common dialogs definitions used in the sample script. It is not needed to use the class, you might simply ignore it.
 3. **RichEdit_sample.ahk** - is a sample script showing how to use the RichEdit control.
+4. **Test.rtf** - RTF test file.
 
 ### How to start ###
 

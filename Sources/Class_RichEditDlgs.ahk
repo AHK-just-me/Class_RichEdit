@@ -60,14 +60,14 @@ Class RichEditDlgs {
       ; CF_NOVECTORFONTS = 0x800, CF_NOSIMULATIONS = 0x1000, CF_LIMITSIZE = 0x2000, CF_WYSIWYG = 0x8000
       ; CF_TTONLY = 0x40000, CF_FORCEFONTEXIST =0x10000, CF_SELECTSCRIPT = 0x400000
       ; CF_NOVERTFONTS =0x01000000
-      Effects := 0x00002140 ; 0x01013940
+      Flags := 0x00002141 ; 0x01013940
       Color := RE.GetBGR(Font.Color)
       CF_Size := (A_PtrSize = 8 ? (A_PtrSize * 10) + (4 * 4) + A_PtrSize : (A_PtrSize * 14) + 4)
       VarSetCapacity(CF, CF_Size, 0)                     ; CHOOSEFONT structure
       NumPut(CF_Size, CF, "UInt")                        ; lStructSize
       NumPut(RE.GuiHwnd, CF, A_PtrSize, "UPtr")		      ; hwndOwner (makes dialog modal)
       NumPut(&LF, CF, A_PtrSize * 3, "UPtr")	            ; lpLogFont
-      NumPut(Effects, CF, (A_PtrSize * 4) + 4, "UInt")   ; dwEffects
+      NumPut(Flags, CF, (A_PtrSize * 4) + 4, "UInt")     ; Flags
       NumPut(Color, CF, (A_PtrSize * 4) + 8, "UInt")     ; rgbColors
       OffSet := (A_PtrSize = 8 ? (A_PtrSize * 11) + 4 : (A_PtrSize * 12) + 4)
       NumPut(4, CF, Offset, "Int")                       ; nSizeMin

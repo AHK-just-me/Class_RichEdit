@@ -515,7 +515,7 @@ Class RichEdit {
       L := NumGet(CR, 4, "Int") - NumGet(CR, 0, "Int") + 1
       If (L > 1) {
          VarSetCapacity(Text, L * 2, 0)
-         SendMessage, 0x043E, 0, &Text, , ahk_id %HWND%
+         SendMessage, 0x043E, 0, &Text, , % "ahk_id " . This.HWND
          VarSetCapacity(Text, -1)
       }
       Return Text

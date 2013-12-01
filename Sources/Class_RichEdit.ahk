@@ -1,4 +1,4 @@
-; ======================================================================================================================
+﻿; ======================================================================================================================
 ; Scriptname:     Class_RichEdit.ahk
 ; Namespace:      RichEdit
 ; Author:         just me
@@ -8,6 +8,7 @@
 ; Change History:
 ;    0.1.00.00    2013-11-17/just me - initial beta release
 ;    0.1.01.00    2013-11-29/just me - bug fix -> GetSelText()
+;    0.1.02.00    2013-12-01/just me - changed SetText() to handle RTF formatted text properly
 ; Credits:
 ;    corrupt for cRichEdit:
 ;       http://www.autohotkey.com/board/topic/17869-crichedit-standard-richedit-control-for-autohotkey-scripts/
@@ -573,7 +574,7 @@ Class RichEdit {
       Return ErrorLevel
    }
    ; -------------------------------------------------------------------------------------------------------------------
-   SetText(Text := "", Mode := "") { ; Replaces the whole content of the control.
+   SetText(ByRef Text := "", Mode := "") { ; Replaces the selection or the whole content of the control.
       ; Mode : Option flags. It can be any reasonable combination of the keys defined in 'ST'.
       ; For details see http://msdn.microsoft.com/en-us/library/bb774284(v=vs.85).aspx.
       ; EM_SETTEXTEX = 0x0461, CP_UNICODE = 1200
@@ -583,10 +584,20 @@ Class RichEdit {
       For Each, Value In Mode
          If ST.HasKey(Value)
             Flags |= ST[Value]
+      CP := 1200
+      BufAddr := &Text
+      ; RTF formatted text has to be passed as ANSI!!!
+      If (SubStr(Text, 1, 5) = "{\rtf") || (SubStr(Text, 1, 5) = "{urtf") {
+         Len := StrPut(Text, "CP0")
+         VarSetCapacity(Buf, Len, 0)
+         StrPut(Text, &Buf, "CP0")
+         BufAddr := &Buf
+         CP := 0
+      }
       VarSetCapacity(STX, 8, 0)     ; SETTEXTEX structure
       NumPut(Flags, STX, 0, "UInt") ; flags
-      NumPut(1200,  STX, 4, "UInt") ; codepage
-      SendMessage, 0x0461, &STX, &Text, , % "ahk_id " . This.HWND
+      NumPut(CP  ,  STX, 4, "UInt") ; codepage
+      SendMessage, 0x0461, &STX, BufAddr, , % "ahk_id " . This.HWND
       Return ErrorLevel
    }
    ; -------------------------------------------------------------------------------------------------------------------

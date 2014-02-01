@@ -1,4 +1,4 @@
-; ======================================================================================================================
+﻿; ======================================================================================================================
 ; Class RichEdit Demo
 ; ======================================================================================================================
 #NoEnv
@@ -172,7 +172,7 @@ If !IsObject(RE1 := New RichEdit(1, Options, False)) {
 }
 RE1.ReplaceSel("AaBbYyZz")
 RE1.AlignText("CENTER")
-RE1.SetOptions("READONLY", "SET")
+RE1.SetOptions(["READONLY"], "SET")
 Gui, Font, Norm, Arial
 ; Alignment & line spacing
 Gui, Add, Text, xm y+2 w%EditW% h2 0x1000

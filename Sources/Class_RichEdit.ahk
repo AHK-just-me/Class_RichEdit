@@ -2,13 +2,14 @@
 ; Scriptname:     Class_RichEdit.ahk
 ; Namespace:      RichEdit
 ; Author:         just me
-; AHK Version:    1.1.13.00 U64
+; AHK Version:    1.1.14.03 U64
 ; OS Version:     Win 7 Pro x64
 ; Function:       The class provides some wrapper functions for rich edit controls (v4.1 Unicode).
 ; Change History:
-;    0.1.00.00    2013-11-17/just me - initial beta release
-;    0.1.01.00    2013-11-29/just me - bug fix -> GetSelText()
+;    0.1.03.00    2014-03-03/just me - added GetTextRange()
 ;    0.1.02.00    2013-12-01/just me - changed SetText() to handle RTF formatted text properly
+;    0.1.01.00    2013-11-29/just me - bug fix -> GetSelText()
+;    0.1.00.00    2013-11-17/just me - initial beta release
 ; Credits:
 ;    corrupt for cRichEdit:
 ;       http://www.autohotkey.com/board/topic/17869-crichedit-standard-richedit-control-for-autohotkey-scripts/
@@ -531,7 +532,7 @@ Class RichEdit {
       Return {S: NumGet(CR, 0, "Int"), E: NumGet(CR, 4, "Int")}
    }
    ; -------------------------------------------------------------------------------------------------------------------
-   GetText() { ; Gets the whole content of the control as palin text.
+   GetText() { ; Gets the whole content of the control as plain text.
       ; EM_GETTEXTEX = 0x045E
       Text := ""
       If (Length := This.GetTextLen() * 2) {
@@ -551,6 +552,25 @@ Class RichEdit {
       NumPut(1200, GTL, 4, "UInt")  ; codepage = Unicode
       SendMessage, 0x045F, &GTL, 0, , % "ahk_id " . This.HWND
       Return ErrorLevel
+   }
+   ; -------------------------------------------------------------------------------------------------------------------
+   GetTextRange(Min, Max) { ; Retrieves a specified range of characters from a rich edit control.
+      ; Min : Character position index immediately preceding the first character in the range.
+      ;       Integer value to store as cpMin in the CHARRANGE structure.
+      ; Max : Character position immediately following the last character in the range.
+      ;       Integer value to store as cpMax in the CHARRANGE structure.
+      ; CHARRANGE -> http://msdn.microsoft.com/en-us/library/bb787885(v=vs.85).aspx
+      ; EM_GETTEXTRANGE = 0x044B
+      If (Max <= Min)
+         Return ""
+      VarSetCapacity(Text, (Max - Min) << !!A_IsUnicode, 0)
+      VarSetCapacity(TEXTRANGE, 16, 0) ; TEXTRANGE Struktur
+      NumPut(Min, TEXTRANGE, 0, "UInt")
+      NumPut(Max, TEXTRANGE, 4, "UInt")
+      NumPut(&Text, TEXTRANGE, 8, "UPtr")
+      SendMessage, 0x044B, 0, % &TEXTRANGE, , % "ahk_id " . This.HWND
+      VarSetCapacity(Text, -1) ; Länge des Zeichenspeichers korrigieren 
+      Return Text
    }
    ; -------------------------------------------------------------------------------------------------------------------
    HideSelection(Mode) { ; Hides or shows the selection.

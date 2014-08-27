@@ -211,6 +211,21 @@ Return
 ^+f::
    RE2.FindText("Test", ["Down"])
 Return
+^+b::
+   RE2.SetBorder([10], [2])
+Return
+^+m::
+   SendMessage, 0xD3, 3, % (60 | (60 << 16)), , % "ahk_id " . RE2.HWND ; EM_SETMARGINS
+   WinSet, Redraw, , % "ahk_id " . RE2.HWND
+Return
+; ======================================================================================================================
+EM_SETMARGINS(Hwnd, Left := "", Right := "") {
+   ; EM_SETMARGINS = 0x00D3 -> http://msdn.microsoft.com/en-us/library/bb761649(v=vs.85).aspx
+   Set := 0 + (Left <> "") + ((Right <> "") * 2)
+   Margins := (Left <> "" ? Left & 0xFFFF : 0) + (Right <> "" ? (Right & 0xFFFF) << 16 : 0)
+   Return DllCall("User32.dll\SendMessage", "Ptr", HWND, "UInt", 0x00D3, "Ptr", Set, "Ptr", Margins, "Ptr")
+}
+
 ; ----------------------------------------------------------------------------------------------------------------------
 ShowSBHelp() {
    Global SBHelp, GuiNum
@@ -607,6 +622,9 @@ ParaIndentGui(RE) {
    Gui, Add, Edit, ys hp Limit5 hwndhLeft1
    Gui, Add, Edit, hp Limit6 hwndhLeft2
    Gui, Add, Edit, hp Limit5 hwndhRight
+   Gui, Add, CheckBox, ys x+5 hp hwndhCBStart, Apply
+   Gui, Add, CheckBox, hp hwndhCBOffset, Apply
+   Gui, Add, CheckBox, hp hwndhCBRight, Apply
    Left1 := Round((PF2.StartIndent / 1440) * Metrics, 2)
    If (Metrics = 2.54)
       Left1 := RegExReplace(Left1, "\.", ",")
@@ -623,7 +641,7 @@ ParaIndentGui(RE) {
    Gui, Add, Button, x+10 yp gParaIndentGuiClose hwndhBtn2, Cancel
    GuiControlGet, B, Pos, %hBtn2%
    GuiControl, Move, %hBtn1%, w%BW%
-   GuiControlGet, E, Pos, %hLeft1%
+   GuiControlGet, E, Pos, %hCBRight%
    GuiControl, Move, %hBtn2%, % "x" . (EX + EW - BW)
    Gui, %Owner%:+Disabled
    Gui, Show, , Paragraph Indentation
@@ -638,25 +656,47 @@ ParaIndentGui(RE) {
    Return
    ; -------------------------------------------------------------------------------------------------------------------
    ParaIndentGuiApply:
-      GuiControlGet, Start, , %hLeft1%
-      If !RegExMatch(Start, "^\d{1,2}((\.|,)\d{1,2})?$") {
-         GuiControl, , %hLeft1%
-         GuiControl, Focus, %hLeft1%
-         Return
+      GuiControlGet, ApplyStart, , %hCBStart%
+      GuiControlGet, ApplyOffset, , %hCBOffset%
+      GuiControlGet, ApplyRight, , %hCBRight%
+      Indent := {}
+      If ApplyStart {
+         GuiControlGet, Start, , %hLeft1%
+         If (Start = "")
+            Start := 0
+         If !RegExMatch(Start, "^\d{1,2}((\.|,)\d{1,2})?$") {
+            GuiControl, , %hLeft1%
+            GuiControl, Focus, %hLeft1%
+            Return
+         }
+         StringReplace, Start, Start, `,, .
+         Indent.Start := Start
       }
-      GuiControlGet, Offset, , %hLeft2%
-      If !RegExMatch(Offset, "^(-)?\d{1,2}((\.|,)\d{1,2})?$") {
-         GuiControl, , %hLeft2%
-         GuiControl, Focus, %hLeft2%
-         Return
+      If (ApplyOffset) {
+         GuiControlGet, Offset, , %hLeft2%
+         If (Offset = "")
+            Offset := 0
+         If !RegExMatch(Offset, "^(-)?\d{1,2}((\.|,)\d{1,2})?$") {
+            GuiControl, , %hLeft2%
+            GuiControl, Focus, %hLeft2%
+            Return
+         }
+         StringReplace, OffSet, OffSet, `,, .
+         Indent.Offset := Offset
       }
-      GuiControlGet, Right, , %hRight%
-      If !RegExMatch(Right, "^\d{1,2}((\.|,)\d{1,2})?$") {
-         GuiControl, , %hRight%
-         GuiControl, Focus, %hRight%
-         Return
+      If (ApplyRight) {
+         GuiControlGet, Right, , %hRight%
+         If (Right = "")
+            Right := 0
+         If !RegExMatch(Right, "^\d{1,2}((\.|,)\d{1,2})?$") {
+            GuiControl, , %hRight%
+            GuiControl, Focus, %hRight%
+            Return
+         }
+         StringReplace, Right, Right, `,, .
+         Indent.Right := Right
       }
-      Success := RE.SetParaIndent({Start: Start, Right: Right, Offset: Offset})
+      Success := RE.SetParaIndent(Indent)
       Gui, %Owner%:-Disabled
       Gui, Destroy
    Return

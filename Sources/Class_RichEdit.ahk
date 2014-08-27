@@ -6,6 +6,7 @@
 ; OS Version:     Win 7 Pro x64
 ; Function:       The class provides some wrapper functions for rich edit controls (v4.1 Unicode).
 ; Change History:
+;    0.1.04.00    2014-08-27/just me - fixed SetParaIndent() and changed indentation sample
 ;    0.1.03.00    2014-03-03/just me - added GetTextRange()
 ;    0.1.02.00    2013-12-01/just me - changed SetText() to handle RTF formatted text properly
 ;    0.1.01.00    2013-11-29/just me - bug fix -> GetSelText()
@@ -1057,20 +1058,21 @@ Class RichEdit {
       PF2 := New This.PF2
       If (Indent = "Reset")
          PF2.Mask := 0x07 ; reset indentation
-      If !IsObject(Indent)
+      Else If !IsObject(Indent)
          Return False
       Else {
-         If (Indent.HasKey("STARTINDENT")) {
-            PF2.Mask |= PFM.Start
+         PF2.Mask := 0
+         If (Indent.HasKey("Start")) {
+            PF2.Mask |= PFM.STARTINDENT
             PF2.StartIndent := Round((Indent.Start / Measurement) * 1440)
          }
-         If (Indent.HasKey("RIGHTINDENT")) {
-            PF2.Mask |= PFM.Right
-            PF2.RightIndent := Round((Indent.Right / Measurement) * 1440)
-         }
-         If (Indent.HasKey("OFFSET")) {
-            PF2.Mask |= PFM.Offset
+         If (Indent.HasKey("Offset")) {
+            PF2.Mask |= PFM.OFFSET
             PF2.Offset := Round((Indent.Offset / Measurement) * 1440)
+         }
+         If (Indent.HasKey("Right")) {
+            PF2.Mask |= PFM.RIGHTINDENT
+            PF2.RightIndent := Round((Indent.Right / Measurement) * 1440)
          }
       }
       If (PF2.Mask) {

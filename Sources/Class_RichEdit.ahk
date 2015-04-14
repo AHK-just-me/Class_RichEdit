@@ -2,10 +2,11 @@
 ; Scriptname:     Class_RichEdit.ahk
 ; Namespace:      RichEdit
 ; Author:         just me
-; AHK Version:    1.1.14.03 U64
-; OS Version:     Win 7 Pro x64
+; AHK Version:    1.1.21.03 (Unicode)
+; OS Version:     Win 8.1 (x64)
 ; Function:       The class provides some wrapper functions for rich edit controls (v4.1 Unicode).
 ; Change History:
+;    0.1.05.00    2015-04-14/just me - fixed LoadRTF() not closing the file after reading
 ;    0.1.04.00    2014-08-27/just me - fixed SetParaIndent() and changed indentation sample
 ;    0.1.03.00    2014-03-03/just me - added GetTextRange()
 ;    0.1.02.00    2013-12-01/just me - changed SetText() to handle RTF formatted text properly
@@ -396,40 +397,22 @@ Class RichEdit {
       ; SF_TEXT = 0x1, SF_RTF = 0x2, SF_RTFNOOBJS = 0x3, SF_UNICODE = 0x10, SF_USECODEPAGE =	0x0020
       ; SFF_PLAINRTF = 0x4000, SFF_SELECTION = 0x8000
       ; UTF-16 = 1200
-      Static LoadRTFCB := 0, PCB := 0
+      Static LoadRTFCB := RegisterCallback("RichEdit.LoadRTFProc")
       Flags := 0x4002 | (Selection ? 0x8000 : 0) ; | (1200 << 16)
-      This.LoadRTFProc(FilePath, 0, 0)
-      LoadRTFCB := RegisterCallback("RichEdit.LoadRTFProc")
+      If !(File := FileOpen(FilePath, "r"))
+         Return False
       VarSetCapacity(ES, (A_PtrSize * 2) + 4, 0)  ; EDITSTREAM structure
-      NumPut(This.HWND, ES, 0, "Ptr")             ; dwCookie
+      NumPut(File.__Handle, ES, 0, "Ptr")         ; dwCookie
       NumPut(LoadRTFCB, ES, A_PtrSize + 4, "Ptr") ; pfnCallback
       SendMessage, 0x0449, %Flags%, &ES, , % "ahk_id " . This.HWND
       Result := ErrorLevel
-      DllCall("Kernel32.dll\GlobalFree", "Ptr", LoadRTFCB)
+      File.Close()
       Return Result
    }
    ; -------------------------------------------------------------------------------------------------------------------
    LoadRTFProc(pbBuff, cb, pcb) { ; Callback procedure for LoadRTF
       ; Left out first parameter dwCookie, will be passed in "This" when called by system
-      Static File := ""
-      If (cb > 0) {
-         If !IsObject(File)
-            Return 1
-         If File.AtEOF {
-            File.Close()
-            File := ""
-            NumPut(0, pcb + 0, 0, "UInt")
-            Return 0
-         }
-         NumPut(File.RawRead(pbBuff + 0, cb), pcb + 0, "UInt")
-         Return 0
-      }
-      If !(pbBuff + 0) { ; a non-integer value was passed, should be the file name
-         If !IsObject(File := FileOpen(pbBuff, "r"))
-            Return False
-         Return True
-      }
-      Return 1
+      Return !DllCall("ReadFile", "Ptr", This, "Ptr", pbBuff, "UInt", cb, "Ptr", pcb, "Ptr", 0)
    }
    ; -------------------------------------------------------------------------------------------------------------------
    ; Scrolling
